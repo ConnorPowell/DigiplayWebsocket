@@ -1,0 +1,21 @@
+{
+  "name": "digiplay-websocket",
+  "version": "1.0.0",
+  "description": "A websocket for digiplay laravel",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ConnorPowell/DigiplayWebsocket.git"
+  },
+  "dependencies": {
+    "pg": "^7.4.3",
+    "ws": "^6.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Connor Powell",
+  "license": "ISC"
+}

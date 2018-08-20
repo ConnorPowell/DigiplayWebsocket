@@ -1,0 +1,10 @@
+{
+	"port": 10000,
+	"database": {
+		"host": "",
+		"port": 5432,
+		"name": "",
+		"user": "",
+		"password": ""
+	}
+}
