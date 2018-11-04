@@ -28,4 +28,13 @@ function connectDB() {
 	client.connect();
 }
 
+setInterval(function(){
+	wss.clients.forEach(function(client){
+		client.send(JSON.stringify({
+			"channel": "ping",
+			"payload": "hello"
+		}));
+	})
+}, 30000);
+
 connectDB();
