@@ -10,7 +10,7 @@ const LISTEN_TRIGGERS = [
 	't_log',
 	't_messages',
 	't_configuration',
-]
+];
 
 // Start our websocket
 const wss = new WebSocket.Server({
@@ -22,13 +22,13 @@ function broadcast(channel, payload) {
 	wss.clients.forEach((client) => {
 		client.send(JSON.stringify({
 			channel: channel,
-			payload: payload
+			payload: payload,
 		}));
 	});
 };
 
 async function setupDatabaseConnection() {
-	client = new Client();
+	const client = new Client();
 	await client.connect();
 
 	// Query the server to listen to our triggers
@@ -60,7 +60,7 @@ setInterval(() => {
 	wss.clients.forEach((client) => {
 		client.send(JSON.stringify({
 			channel: 'ping',
-			payload: 'hello'
+			payload: 'hello',
 		}));
 	})
 }, 10000);
