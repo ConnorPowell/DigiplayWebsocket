@@ -38,16 +38,17 @@ async function setupDatabaseConnection() {
 	
 	// When we receive a message
 	// Dispatch a message broadcast to the clients
-	client.on('notification', (msg) => { 
+	client.on('notification', ({ channel, payload }) => {
 		// Set broadcast payload depending on message type
-		if(msg.channel == 't_log' || msg.channel == 't_configuration') {
-			payload = JSON.parse(msg.payload);
+		let rawPayload;
+		if(channel == 't_log' || channel == 't_configuration') {
+			rawPayload = JSON.parse(payload);
 		}
 		else {
-			payload = 'message';
+			rawPayload = 'message';
 		}
 
-		broadcast(msg.channel, payload);
+		broadcast(channel, rawPayload);
 	});
 }
 
