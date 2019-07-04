@@ -10,7 +10,7 @@ if ! hash forever 2>/dev/null; then
 fi
 
 if ! hash forever-service 2>/dev/null; then
-	sudo npm install-service -g forever
+	sudo npm install -g forever-service
 fi
 
 sudo forever-service install websocket
