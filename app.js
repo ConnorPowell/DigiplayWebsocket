@@ -1,40 +1,67 @@
-var config = require("./config.json");
-var WebSocketServer = require("ws").Server, wss = new WebSocketServer({port: config.port});
-var pg = require("pg"), listener, client, connString = "postgres://" + config.database.user + ":" + config.database.password + "@" + config.database.host + ":" + config.database.port + "/" + config.database.name;
+// Load in the .env file
+require('dotenv').config()
 
-wss.broadcast = function(channel, payload) {
-	wss.clients.forEach(function(client){
+// Websocket & Postgres Client packages
+const WebSocket = require('ws');
+const { Client } = require('pg');
+
+// List of triggers we need from the database
+const LISTEN_TRIGGERS = [
+	't_log',
+	't_messages',
+	't_configuration',
+]
+
+// Start our websocket
+const wss = new WebSocket.Server({
+	port: process.env.PORT
+});
+
+// Broadcast to each client the payload and channel
+function broadcast(channel, payload) {
+	wss.clients.forEach((client) => {
 		client.send(JSON.stringify({
-			"channel": channel,
-			"payload": payload
+			channel: channel,
+			payload: payload
 		}));
 	});
 };
 
-function connectDB() {
-	listener = new pg.Client(connString);
-	listener.connect();
-	listener.query("LISTEN t_log; LISTEN t_messages;");
-	listener.on("notification", function(msg){ 
-		if(msg.channel == "t_log")
-			payload = msg.payload;
-		else
-			payload = "message";
+async function setupDatabaseConnection() {
+	client = new Client();
+	await client.connect();
 
-		wss.broadcast(msg.channel, payload);
+	// Query the server to listen to our triggers
+	client.query(LISTEN_TRIGGERS.reduce((accumulator, trigger) => {
+		return `LISTEN ${trigger};${accumulator}`;
+	}, ''));
+	
+	// When we receive a message
+	// Dispatch a message broadcast to the clients
+	client.on('notification', (msg) => { 
+		// Set broadcast payload depending on message type
+		if(msg.channel == 't_log' || msg.channel == 't_configuration') {
+			payload = JSON.parse(msg.payload);
+		}
+		else {
+			payload = 'message';
+		}
+
+		broadcast(msg.channel, payload);
 	});
-
-	client = new pg.Client(connString);
-	client.connect();
 }
 
-setInterval(function(){
-	wss.clients.forEach(function(client){
+// Every 10 seconds ping connected clients
+// This is required to keep the connection open
+// As browsers will terminate a websocket which hasn't
+// communicated for some time
+setInterval(() => {
+	wss.clients.forEach((client) => {
 		client.send(JSON.stringify({
-			"channel": "ping",
-			"payload": "hello"
+			channel: 'ping',
+			payload: 'hello'
 		}));
 	})
-}, 30000);
+}, 10000);
 
-connectDB();
+setupDatabaseConnection();
