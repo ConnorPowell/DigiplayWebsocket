@@ -1,5 +1,5 @@
 // Load in the .env file
-require('dotenv').config()
+require('dotenv').config();
 
 // Websocket & Postgres Client packages
 const WebSocket = require('ws');
@@ -14,7 +14,7 @@ const LISTEN_TRIGGERS = [
 
 // Start our websocket
 const wss = new WebSocket.Server({
-	port: process.env.PORT
+	port: 8080
 });
 
 // Broadcast to each client the payload and channel
@@ -35,7 +35,7 @@ async function setupDatabaseConnection() {
 	client.query(LISTEN_TRIGGERS.reduce((accumulator, trigger) => {
 		return `LISTEN ${trigger};${accumulator}`;
 	}, ''));
-	
+
 	// When we receive a message
 	// Dispatch a message broadcast to the clients
 	client.on('notification', ({ channel, payload }) => {
